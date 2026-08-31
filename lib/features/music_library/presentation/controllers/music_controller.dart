@@ -147,6 +147,12 @@ class MusicController extends ChangeNotifier {
     return _persist();
   }
 
+  Future<void> addTrack(MediaTrack track) async {
+    library = library.copyWith(tracks: [...library.tracks, track]);
+    notifyListeners();
+    await _persist();
+  }
+
   Future<String?> createPlaylist({
     required String name,
     required String description,
@@ -228,15 +234,13 @@ class MusicController extends ChangeNotifier {
     await _persist();
   }
 
-  Future<String?> playLocalTrack(
+  Future<String?> playTrack(
     MediaTrack track, {
     List<MediaTrack>? from,
   }) async {
-    final candidates = (from ?? library.tracks)
-        .where((item) => item.isLocal)
-        .toList();
+    final candidates = (from ?? library.tracks).toList();
     final initialIndex = candidates.indexWhere((item) => item.id == track.id);
-    if (initialIndex < 0) return 'This local track is no longer available.';
+    if (initialIndex < 0) return 'This track is no longer available.';
     final result = await _playback.setQueue(candidates, initialIndex);
     switch (result) {
       case Failure(failure: final failure):
