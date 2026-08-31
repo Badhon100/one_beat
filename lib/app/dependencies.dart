@@ -14,6 +14,8 @@ import '../features/music_library/domain/usecases/parse_youtube_url.dart';
 import '../features/music_library/domain/usecases/pick_local_tracks.dart';
 import '../features/music_library/domain/usecases/save_music_library.dart';
 import '../features/music_library/presentation/controllers/music_controller.dart';
+import '../features/youtube_search/data/repositories/youtube_search_repository_impl.dart';
+import '../features/youtube_search/domain/usecases/search_youtube.dart';
 
 class AppDependencies {
   const AppDependencies({
@@ -24,6 +26,7 @@ class AppDependencies {
     required this.saveMusicLibrary,
     required this.pickLocalTracks,
     required this.audioPlayback,
+    required this.searchYoutube,
   });
 
   factory AppDependencies.create() {
@@ -34,6 +37,7 @@ class AppDependencies {
     const pickerRepository = LocalAudioRepositoryImpl(
       FilePickerAudioDataSource(),
     );
+    final youtubeRepository = YoutubeSearchRepositoryImpl(apiKey: '');
     return AppDependencies(
       getAudioCapabilities: GetAudioCapabilities(repository),
       openBluetoothSettings: OpenBluetoothSettings(repository),
@@ -42,6 +46,7 @@ class AppDependencies {
       saveMusicLibrary: const SaveMusicLibrary(libraryRepository),
       pickLocalTracks: const PickLocalTracks(pickerRepository),
       audioPlayback: JustAudioPlaybackRepository(),
+      searchYoutube: SearchYoutube(youtubeRepository),
     );
   }
 
@@ -52,6 +57,7 @@ class AppDependencies {
   final SaveMusicLibrary saveMusicLibrary;
   final PickLocalTracks pickLocalTracks;
   final AudioPlaybackRepository audioPlayback;
+  final SearchYoutube searchYoutube;
 
   MusicController createMusicController() => MusicController(
     loadLibrary: loadMusicLibrary,

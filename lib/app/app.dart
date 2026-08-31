@@ -41,6 +41,7 @@ class _OneBeatAppState extends State<OneBeatApp> {
       themeMode: ThemeMode.dark,
       home: MusicShellPage(
         controller: _musicController,
+        dependencies: widget.dependencies,
         devicesPage: AudioCapabilitiesPage(
           controller: _audioCapabilitiesController,
         ),

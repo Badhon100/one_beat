@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
 
+import '../features/audio_player/data/repositories/just_audio_playback_repository.dart';
 import '../features/audio_player/presentation/pages/now_playing_page.dart';
-import '../features/audio_player/presentation/pages/youtube_player_page.dart';
 import '../features/audio_player/presentation/widgets/mini_player.dart';
+import '../features/youtube_search/presentation/pages/youtube_search_page.dart';
 import '../features/music_library/domain/entities/media_track.dart';
 import '../features/music_library/domain/entities/user_playlist.dart';
 import '../features/music_library/presentation/controllers/music_controller.dart';
@@ -10,15 +12,19 @@ import '../features/music_library/presentation/pages/library_page.dart';
 import '../features/music_library/presentation/pages/music_home_page.dart';
 import '../features/music_library/presentation/pages/playlists_page.dart';
 
+import 'dependencies.dart';
+
 class MusicShellPage extends StatefulWidget {
   const MusicShellPage({
     required this.controller,
     required this.devicesPage,
+    required this.dependencies,
     super.key,
   });
 
   final MusicController controller;
   final Widget devicesPage;
+  final AppDependencies dependencies;
 
   @override
   State<MusicShellPage> createState() => _MusicShellPageState();
@@ -75,8 +81,29 @@ class _MusicShellPageState extends State<MusicShellPage> {
       widget.devicesPage,
     ];
 
+    // Get the YouTube player controller if active
+    final repo = widget.dependencies.audioPlayback;
+    final ytController = repo is JustAudioPlaybackRepository
+        ? repo.youtubePlayerController
+        : null;
+
     return Scaffold(
-      body: IndexedStack(index: _index, children: pages),
+      body: Stack(
+        children: [
+          IndexedStack(index: _index, children: pages),
+          // Hidden YouTube iframe player (1x1 pixel, behind everything)
+          if (ytController != null)
+            Positioned(
+              left: -1,
+              top: -1,
+              width: 1,
+              height: 1,
+              child: yt.YoutubePlayer(
+                controller: ytController,
+              ),
+            ),
+        ],
+      ),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -120,16 +147,8 @@ class _MusicShellPageState extends State<MusicShellPage> {
   }
 
   Future<void> _openTrack(MediaTrack track) async {
-    if (track.isLocal) {
-      final message = await widget.controller.playLocalTrack(track);
-      if (message != null) _showMessage(message);
-      return;
-    }
-    await widget.controller.pause();
-    if (!mounted) return;
-    await Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (_) => YoutubePlayerPage(track: track)),
-    );
+    final message = await widget.controller.playTrack(track);
+    if (message != null) _showMessage(message);
   }
 
   Future<void> _showAddMusic() async {
@@ -158,12 +177,32 @@ class _MusicShellPageState extends State<MusicShellPage> {
                   _importLocal();
                 },
               ),
+              _SourceOption(
+                icon: Icons.search_rounded,
+                color: const Color(0xFF10B981),
+                title: 'Browse YouTube',
+                subtitle: 'Search and import audio tracks directly',
+                onTap: () {
+                  Navigator.pop(sheetContext);
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => YoutubeSearchPage(
+                        dependencies: widget.dependencies,
+                        controller: widget.controller,
+                        onTrackAdded: (track) {
+                          widget.controller.addTrack(track);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 10),
               _SourceOption(
                 icon: Icons.smart_display_rounded,
                 color: const Color(0xFFEF4444),
                 title: 'Add YouTube link',
-                subtitle: 'Save and play through the official YouTube player',
+                subtitle: 'Save and play by URL',
                 onTap: () {
                   Navigator.pop(sheetContext);
                   _showYoutubeForm();
