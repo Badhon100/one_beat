@@ -1,9 +1,8 @@
 # OneBeat
 
-OneBeat is an Android-first Flutter proof of concept for synchronized audio on
-multiple Bluetooth LE Audio receivers. The current milestone detects whether a
-phone exposes LE Audio broadcast-source capability and guides the user through
-Bluetooth permission and settings.
+OneBeat is an Android-first Flutter music player and Bluetooth LE Audio
+capability app. It combines a personal local library, compliant YouTube embeds,
+playlists, favorites, categories, and speaker-readiness checks in one experience.
 
 > OneBeat does not claim to route audio to arbitrary Bluetooth Classic/A2DP
 > speakers. Multi-device playback requires compatible LE Audio/Auracast phone
@@ -11,13 +10,27 @@ Bluetooth permission and settings.
 
 ## Current functionality
 
+- Imports multiple local audio files using the Android system picker.
+- Plays local files with seek, queue, previous/next, shuffle, repeat-one,
+  repeat-all, and audio-focus handling.
+- Saves YouTube links and plays them through the official visible IFrame player.
+- Persists user playlists, favorites, categories, and library metadata locally.
+- Provides Home, Library, Playlists, Now Playing, YouTube Player, and Devices UI.
+- Searches tracks and filters local, YouTube, and favorite content.
 - Detects Android API level, Bluetooth state, LE Audio support, and broadcast
   source support through a native Kotlin platform channel.
 - Requests Android 12+ nearby-device permissions.
 - Opens system Bluetooth settings.
 - Presents explicit ready, permission-required, Bluetooth-off, unsupported, and
   failure states.
-- Unit tests the domain readiness rules and data-to-domain mapping.
+- Unit tests Bluetooth readiness, YouTube URL parsing, persistence, and mapping.
+
+## YouTube behavior
+
+OneBeat does not download, extract, or isolate audio from YouTube. YouTube items
+remain audiovisual and use the official embedded player with visible controls.
+Background playback is intentionally unavailable for YouTube content. Some
+videos cannot be embedded because of owner, region, age, or account restrictions.
 
 ## Architecture
 
@@ -27,10 +40,10 @@ The project follows feature-first Clean Architecture:
 lib/
 ├── app/                         # Composition root, app shell, theme
 ├── core/                        # Cross-feature result and failure types
-└── features/audio_capabilities/
-    ├── presentation/            # Pages, widgets, controller
-    ├── domain/                  # Entities, repository contract, use cases
-    └── data/                    # Models, platform source, repository implementation
+└── features/
+    ├── audio_capabilities/      # Android LE Audio capability feature
+    ├── audio_player/            # Playback contract, just_audio adapter, player UI
+    └── music_library/           # Tracks, playlists, persistence, library UI
 
 android/app/src/main/kotlin/     # Android framework integration only
 ```
@@ -58,9 +71,10 @@ results. Emulator results are expected to report broadcast support as unavailabl
 1. Validate capability results on selected phone and Auracast speaker models.
 2. Add paired-device observation and capability-specific onboarding.
 3. Integrate the system/OEM audio-sharing flow available on supported phones.
-4. Add local media playback and background audio controls.
-5. Measure end-to-end latency and synchronization on real hardware.
-6. Decide whether a Wi-Fi receiver mode is needed for non-Auracast speakers.
+4. Add local-audio notification and background playback controls.
+5. Read embedded media metadata and local audio tags/artwork.
+6. Measure end-to-end latency and synchronization on real hardware.
+7. Decide whether a Wi-Fi receiver mode is needed for non-Auracast speakers.
 
 The next phase must be based on tested target hardware because Android does not
 offer a universal third-party API for routing one media stream to arbitrary
