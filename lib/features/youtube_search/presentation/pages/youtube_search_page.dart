@@ -10,12 +10,14 @@ class YoutubeSearchPage extends StatefulWidget {
     required this.dependencies,
     required this.controller,
     required this.onTrackAdded,
+    required this.onTrackSelected,
     super.key,
   });
 
   final AppDependencies dependencies;
   final MusicController controller;
   final ValueChanged<MediaTrack> onTrackAdded;
+  final ValueChanged<MediaTrack> onTrackSelected;
 
   @override
   State<YoutubeSearchPage> createState() => _YoutubeSearchPageState();
@@ -30,8 +32,12 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
     super.initState();
     _controller = YoutubeSearchController(widget.dependencies.searchYoutube)
       ..addListener(_refresh);
-    // Load trending music/hits by default when page opens
-    _controller.search('trending music');
+    if (_controller.isConfigured) {
+      _controller.search('trending music');
+    } else {
+      _controller.message =
+          'To enable in-app song browsing, run OneBeat with a restricted YouTube Data API key using --dart-define=YOUTUBE_API_KEY=your_key.';
+    }
   }
 
   @override
@@ -49,21 +55,22 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Browse YouTube Audio'),
-      ),
+      appBar: AppBar(title: const Text('Browse YouTube Audio')),
       body: Column(
         children: [
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: TextField(
               controller: _searchQuery,
+              enabled: _controller.isConfigured,
               decoration: InputDecoration(
                 hintText: 'Search songs, artists, channels...',
                 prefixIcon: const Icon(Icons.search_rounded),
                 suffixIcon: IconButton(
                   onPressed: () {
-                    _controller.search(_searchQuery.text);
+                    if (_controller.isConfigured) {
+                      _controller.search(_searchQuery.text);
+                    }
                   },
                   icon: const Icon(Icons.send_rounded),
                 ),
@@ -72,11 +79,7 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
             ),
           ),
           if (_controller.isSearching)
-            const Expanded(
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
-            )
+            const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_controller.message != null && _controller.results.isEmpty)
             Expanded(
               child: Center(
@@ -107,15 +110,7 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
                   );
 
                   return ListTile(
-                    onTap: () async {
-                      // Play directly from browse search
-                      final message = await widget.controller.playTrack(track, from: [track]);
-                      if (message != null && context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text(message)),
-                        );
-                      }
-                    },
+                    onTap: () => widget.onTrackSelected(track),
                     leading: ClipRRect(
                       borderRadius: BorderRadius.circular(8),
                       child: Image.network(
@@ -143,7 +138,9 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
                         widget.onTrackAdded(track);
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
-                            content: Text('"${result.title}" added to library.'),
+                            content: Text(
+                              '"${result.title}" added to library.',
+                            ),
                           ),
                         );
                       },

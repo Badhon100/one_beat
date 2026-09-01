@@ -32,6 +32,19 @@ remain audiovisual and use the official embedded player with visible controls.
 Background playback is intentionally unavailable for YouTube content. Some
 videos cannot be embedded because of owner, region, age, or account restrictions.
 
+## Enable YouTube browsing
+
+OneBeat uses the official YouTube Data API for song search. Create a Google Cloud
+project, enable **YouTube Data API v3**, and make an Android-restricted API key
+for package `com.onebeat.app`. Keep the key out of Git, then run:
+
+```shell
+flutter run --dart-define=YOUTUBE_API_KEY=your_restricted_key
+```
+
+Without that setting, saved YouTube links still open in the visible embedded
+player, but the Browse YouTube screen explains how to configure search.
+
 ## Architecture
 
 The project follows feature-first Clean Architecture:

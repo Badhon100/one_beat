@@ -12,8 +12,9 @@ class YoutubeSearchResultModel {
     final id = json['id']! as Map<String, Object?>;
     final snippet = json['snippet']! as Map<String, Object?>;
     final thumbnails = snippet['thumbnails']! as Map<String, Object?>;
-    final thumbnail = (thumbnails['high'] ?? thumbnails['medium'] ?? thumbnails['default'])!
-        as Map<String, Object?>;
+    final thumbnail =
+        (thumbnails['high'] ?? thumbnails['medium'] ?? thumbnails['default'])!
+            as Map<String, Object?>;
     return YoutubeSearchResultModel(
       videoId: id['videoId']! as String,
       title: snippet['title']! as String,

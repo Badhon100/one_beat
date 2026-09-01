@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:youtube_player_iframe/youtube_player_iframe.dart' as yt;
-
-import '../features/audio_player/data/repositories/just_audio_playback_repository.dart';
 import '../features/audio_player/presentation/pages/now_playing_page.dart';
+import '../features/audio_player/presentation/pages/youtube_player_page.dart';
 import '../features/audio_player/presentation/widgets/mini_player.dart';
 import '../features/youtube_search/presentation/pages/youtube_search_page.dart';
 import '../features/music_library/domain/entities/media_track.dart';
@@ -81,29 +79,8 @@ class _MusicShellPageState extends State<MusicShellPage> {
       widget.devicesPage,
     ];
 
-    // Get the YouTube player controller if active
-    final repo = widget.dependencies.audioPlayback;
-    final ytController = repo is JustAudioPlaybackRepository
-        ? repo.youtubePlayerController
-        : null;
-
     return Scaffold(
-      body: Stack(
-        children: [
-          IndexedStack(index: _index, children: pages),
-          // Hidden YouTube iframe player (1x1 pixel, behind everything)
-          if (ytController != null)
-            Positioned(
-              left: -1,
-              top: -1,
-              width: 1,
-              height: 1,
-              child: yt.YoutubePlayer(
-                controller: ytController,
-              ),
-            ),
-        ],
-      ),
+      body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -147,6 +124,16 @@ class _MusicShellPageState extends State<MusicShellPage> {
   }
 
   Future<void> _openTrack(MediaTrack track) async {
+    if (!track.isLocal) {
+      await widget.controller.pause();
+      if (!mounted) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => YoutubePlayerPage(track: track),
+        ),
+      );
+      return;
+    }
     final message = await widget.controller.playTrack(track);
     if (message != null) _showMessage(message);
   }
@@ -192,6 +179,7 @@ class _MusicShellPageState extends State<MusicShellPage> {
                         onTrackAdded: (track) {
                           widget.controller.addTrack(track);
                         },
+                        onTrackSelected: _openTrack,
                       ),
                     ),
                   );

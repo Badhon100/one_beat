@@ -28,11 +28,17 @@ class YoutubeDataApiDataSource implements YoutubeRemoteDataSource {
     });
     final response = await _client.get(uri);
     if (response.statusCode != 200) {
-      throw StateError(_apiError(response.body) ?? 'YouTube search is temporarily unavailable.');
+      throw StateError(
+        _apiError(response.body) ??
+            'YouTube search is temporarily unavailable.',
+      );
     }
     final json = jsonDecode(response.body) as Map<String, Object?>;
     return (json['items'] as List<Object?>? ?? const [])
-        .map((item) => YoutubeSearchResultModel.fromJson(item! as Map<String, Object?>))
+        .map(
+          (item) =>
+              YoutubeSearchResultModel.fromJson(item! as Map<String, Object?>),
+        )
         .toList(growable: false);
   }
 

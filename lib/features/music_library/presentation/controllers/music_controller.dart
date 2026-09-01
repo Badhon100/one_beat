@@ -234,10 +234,7 @@ class MusicController extends ChangeNotifier {
     await _persist();
   }
 
-  Future<String?> playTrack(
-    MediaTrack track, {
-    List<MediaTrack>? from,
-  }) async {
+  Future<String?> playTrack(MediaTrack track, {List<MediaTrack>? from}) async {
     final candidates = (from ?? library.tracks).toList();
     final initialIndex = candidates.indexWhere((item) => item.id == track.id);
     if (initialIndex < 0) return 'This track is no longer available.';

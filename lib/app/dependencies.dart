@@ -37,7 +37,9 @@ class AppDependencies {
     const pickerRepository = LocalAudioRepositoryImpl(
       FilePickerAudioDataSource(),
     );
-    final youtubeRepository = YoutubeSearchRepositoryImpl(apiKey: '');
+    final youtubeRepository = YoutubeSearchRepositoryImpl(
+      apiKey: const String.fromEnvironment('YOUTUBE_API_KEY'),
+    );
     return AppDependencies(
       getAudioCapabilities: GetAudioCapabilities(repository),
       openBluetoothSettings: OpenBluetoothSettings(repository),

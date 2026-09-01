@@ -1,5 +1,3 @@
-import 'package:youtube_explode_dart/youtube_explode_dart.dart' as yt_exp;
-
 import '../../../../core/error/app_failure.dart';
 import '../../../../core/result/result.dart';
 import '../../domain/entities/youtube_search_result.dart';
@@ -10,28 +8,35 @@ class YoutubeSearchRepositoryImpl implements YoutubeSearchRepository {
   YoutubeSearchRepositoryImpl({
     required String apiKey,
     YoutubeRemoteDataSource? dataSource,
-  });
+  }) : _apiKey = apiKey,
+       _dataSource = dataSource;
+
+  final String _apiKey;
+  final YoutubeRemoteDataSource? _dataSource;
 
   @override
-  bool get isConfigured => true;
+  bool get isConfigured => _apiKey.isNotEmpty;
 
   @override
   Future<Result<List<YoutubeSearchResult>>> search(String query) async {
+    if (!isConfigured) {
+      return const Failure(
+        AppFailure(
+          'YouTube search needs a YOUTUBE_API_KEY build setting. See the project README for setup.',
+        ),
+      );
+    }
     try {
-      final yt = yt_exp.YoutubeExplode();
-      final list = await yt.search.search(query);
-      final results = list.map((video) {
-        return YoutubeSearchResult(
-          videoId: video.id.value,
-          title: video.title,
-          channelTitle: video.author,
-          thumbnailUrl: video.thumbnails.mediumResUrl,
-        );
-      }).toList();
-      yt.close();
-      return Success(results);
+      final dataSource =
+          _dataSource ?? YoutubeDataApiDataSource(apiKey: _apiKey);
+      final results = await dataSource.search(query);
+      return Success(
+        results.map((result) => result.toEntity()).toList(growable: false),
+      );
     } on Object catch (error) {
-      return Failure(AppFailure('Could not search YouTube. Please try again.', cause: error));
+      return Failure(
+        AppFailure('Could not search YouTube. Please try again.', cause: error),
+      );
     }
   }
 }

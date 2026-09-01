@@ -24,7 +24,9 @@ class YoutubeSearchController extends ChangeNotifier {
     switch (result) {
       case Success(value: final value):
         results = value;
-        message = value.isEmpty ? 'No embeddable videos found for this search.' : null;
+        message = value.isEmpty
+            ? 'No embeddable videos found for this search.'
+            : null;
       case Failure(failure: final failure):
         results = const [];
         message = failure.message;
