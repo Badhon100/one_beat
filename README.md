@@ -1,13 +1,17 @@
-# OneBeat — Open-Source Android Music Player
+# OneBeat — Multi-Speaker Bluetooth Music Player
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Flutter](https://img.shields.io/badge/Flutter-3.41%2B-02569B?logo=flutter)](https://flutter.dev)
 [![Platform: Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)](https://www.android.com/)
 
-**OneBeat** is an open-source Android music player built with Flutter. Import
-and play your local MP3, M4A, WAV, and other device-supported audio files;
-create playlists; manage favorites and categories; and check Bluetooth LE Audio
-and Auracast readiness from one polished app.
+**OneBeat** is an open-source Flutter app exploring synchronized music playback
+across multiple compatible Bluetooth speakers. Its core goal is to make it easy
+to play one local music library through Bluetooth LE Audio and Auracast-capable
+devices, while clearly showing whether the phone and speaker setup is ready.
+
+Import and play your local MP3, M4A, WAV, and other device-supported audio
+files; create playlists; manage favorites and categories; and check Bluetooth
+LE Audio and Auracast readiness from one polished Android app.
 
 > OneBeat is a local music player. It does not download, extract, or stream
 > music from YouTube or other online sources.
@@ -22,22 +26,41 @@ and Auracast readiness from one polished app.
 The debug APK is intended for testing. Android may show a warning for apps not
 installed from Google Play; this is expected for a GitHub download.
 
-## Features
+## Primary goal: one song, multiple Bluetooth speakers
+
+OneBeat focuses on multi-device audio sharing. On compatible Android hardware,
+the intended flow is:
+
+1. Import or select local music in OneBeat.
+2. Check Bluetooth and LE Audio/Auracast readiness in **Devices**.
+3. Use the phone's supported system or OEM audio-sharing flow to broadcast the
+   active media session to multiple compatible receivers.
+4. Keep playback controls, playlists, and the local library in OneBeat.
+
+This focus guides the roadmap and community contributions.
+
+## Current features
 
 - Local Android audio player with multi-file import.
 - Queue controls: play, pause, seek, next, previous, shuffle, repeat-one, and repeat-all.
 - Background audio session and audio-focus handling.
 - Personal playlists, favorites, categories, and local library persistence.
 - Search across your local tracks, artists, and categories.
-- Bluetooth capability screen for Android version, Bluetooth state, LE Audio, and Auracast broadcast-source readiness.
+- Bluetooth capability screen for Android version, Bluetooth state, LE Audio,
+  and Auracast broadcast-source readiness.
 - Clear, Android-first Material UI built with Flutter.
 
-## Bluetooth and multi-speaker audio
+## Important Bluetooth compatibility note
 
 OneBeat can report whether a device appears ready for LE Audio/Auracast. It
 does **not** claim to send one stream to arbitrary Bluetooth Classic/A2DP
-speakers. True multi-speaker playback requires compatible phone hardware,
-receiver hardware, and operating-system support.
+speakers or bypass Android's audio-routing controls. True synchronized
+multi-speaker playback requires compatible phone hardware, multiple LE
+Audio/Auracast receivers, and operating-system or OEM support.
+
+If your phone or speakers do not support LE Audio/Auracast broadcasting,
+OneBeat still works as a local audio player, but synchronized multi-speaker
+playback will not be available.
 
 ## Run from source
 
@@ -91,9 +114,9 @@ Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), then:
 3. Run `flutter analyze` and `flutter test`.
 4. Open a pull request describing the problem and the solution.
 
-Good first contributions include improving local metadata/artwork, accessibility,
-test coverage, device compatibility, and Bluetooth onboarding. Please use the
-issue templates for bugs and feature requests.
+Good first contributions include LE Audio/Auracast device compatibility,
+Bluetooth onboarding, local metadata/artwork, accessibility, and test coverage.
+Please use the issue templates for bugs and feature requests.
 
 ## License
 
