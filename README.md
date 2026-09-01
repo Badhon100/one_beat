@@ -1,8 +1,8 @@
 # OneBeat
 
 OneBeat is an Android-first Flutter music player and Bluetooth LE Audio
-capability app. It combines a personal local library, compliant YouTube embeds,
-playlists, favorites, categories, and speaker-readiness checks in one experience.
+capability app. It combines a personal local audio library, playlists,
+favorites, categories, and speaker-readiness checks in one experience.
 
 > OneBeat does not claim to route audio to arbitrary Bluetooth Classic/A2DP
 > speakers. Multi-device playback requires compatible LE Audio/Auracast phone
@@ -13,37 +13,16 @@ playlists, favorites, categories, and speaker-readiness checks in one experience
 - Imports multiple local audio files using the Android system picker.
 - Plays local files with seek, queue, previous/next, shuffle, repeat-one,
   repeat-all, and audio-focus handling.
-- Saves YouTube links and plays them through the official visible IFrame player.
 - Persists user playlists, favorites, categories, and library metadata locally.
-- Provides Home, Library, Playlists, Now Playing, YouTube Player, and Devices UI.
-- Searches tracks and filters local, YouTube, and favorite content.
+- Provides Home, Library, Playlists, Now Playing, and Devices UI.
+- Searches local tracks and filters favorites.
 - Detects Android API level, Bluetooth state, LE Audio support, and broadcast
   source support through a native Kotlin platform channel.
 - Requests Android 12+ nearby-device permissions.
 - Opens system Bluetooth settings.
 - Presents explicit ready, permission-required, Bluetooth-off, unsupported, and
   failure states.
-- Unit tests Bluetooth readiness, YouTube URL parsing, persistence, and mapping.
-
-## YouTube behavior
-
-OneBeat does not download, extract, or isolate audio from YouTube. YouTube items
-remain audiovisual and use the official embedded player with visible controls.
-Background playback is intentionally unavailable for YouTube content. Some
-videos cannot be embedded because of owner, region, age, or account restrictions.
-
-## Enable YouTube browsing
-
-OneBeat uses the official YouTube Data API for song search. Create a Google Cloud
-project, enable **YouTube Data API v3**, and make an Android-restricted API key
-for package `com.onebeat.app`. Keep the key out of Git, then run:
-
-```shell
-flutter run --dart-define=YOUTUBE_API_KEY=your_restricted_key
-```
-
-Without that setting, saved YouTube links still open in the visible embedded
-player, but the Browse YouTube screen explains how to configure search.
+- Unit tests Bluetooth readiness and local-library persistence.
 
 ## Architecture
 

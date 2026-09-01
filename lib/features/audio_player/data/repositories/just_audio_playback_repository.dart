@@ -8,8 +8,7 @@ import '../../../music_library/domain/entities/media_track.dart';
 import '../../domain/entities/player_loop_mode.dart';
 import '../../domain/repositories/audio_playback_repository.dart';
 
-/// Plays local audio only. YouTube media is handled by the visible official
-/// YouTube embed, not by extracting or resolving an audio stream.
+/// Plays audio files imported from the device.
 class JustAudioPlaybackRepository implements AudioPlaybackRepository {
   JustAudioPlaybackRepository() : _player = AudioPlayer();
 
@@ -45,11 +44,6 @@ class JustAudioPlaybackRepository implements AudioPlaybackRepository {
     List<MediaTrack> tracks,
     int initialIndex,
   ) async {
-    if (tracks.any((track) => !track.isLocal)) {
-      return const Failure(
-        AppFailure('YouTube videos play in the official embedded player.'),
-      );
-    }
     try {
       await _configureSession();
       final sources = tracks

@@ -10,7 +10,6 @@ class MediaTrackModel {
     required this.addedAt,
     required this.category,
     required this.isFavorite,
-    this.youtubeVideoId,
   });
 
   factory MediaTrackModel.fromEntity(MediaTrack track) => MediaTrackModel(
@@ -21,7 +20,6 @@ class MediaTrackModel {
     sourceType: track.sourceType.name,
     addedAt: track.addedAt.toIso8601String(),
     category: track.category,
-    youtubeVideoId: track.youtubeVideoId,
     isFavorite: track.isFavorite,
   );
 
@@ -34,7 +32,6 @@ class MediaTrackModel {
         sourceType: json['sourceType'] as String,
         addedAt: json['addedAt'] as String,
         category: json['category'] as String? ?? 'Uncategorized',
-        youtubeVideoId: json['youtubeVideoId'] as String?,
         isFavorite: json['isFavorite'] as bool? ?? false,
       );
 
@@ -45,20 +42,21 @@ class MediaTrackModel {
   final String sourceType;
   final String addedAt;
   final String category;
-  final String? youtubeVideoId;
   final bool isFavorite;
 
-  MediaTrack toEntity() => MediaTrack(
-    id: id,
-    title: title,
-    artist: artist,
-    location: location,
-    sourceType: MediaSourceType.values.byName(sourceType),
-    addedAt: DateTime.parse(addedAt),
-    category: category,
-    youtubeVideoId: youtubeVideoId,
-    isFavorite: isFavorite,
-  );
+  MediaTrack? toEntity() {
+    if (sourceType != MediaSourceType.local.name) return null;
+    return MediaTrack(
+      id: id,
+      title: title,
+      artist: artist,
+      location: location,
+      sourceType: MediaSourceType.values.byName(sourceType),
+      addedAt: DateTime.parse(addedAt),
+      category: category,
+      isFavorite: isFavorite,
+    );
+  }
 
   Map<String, Object?> toJson() => {
     'id': id,
@@ -68,7 +66,6 @@ class MediaTrackModel {
     'sourceType': sourceType,
     'addedAt': addedAt,
     'category': category,
-    'youtubeVideoId': youtubeVideoId,
     'isFavorite': isFavorite,
   };
 }

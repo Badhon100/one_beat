@@ -4,7 +4,7 @@ import '../../domain/entities/media_track.dart';
 import '../controllers/music_controller.dart';
 import '../widgets/track_tile.dart';
 
-enum _TrackFilter { all, local, youtube, favorites }
+enum _TrackFilter { all, favorites }
 
 class LibraryPage extends StatefulWidget {
   const LibraryPage({
@@ -46,8 +46,6 @@ class _LibraryPageState extends State<LibraryPage> {
               track.category.toLowerCase().contains(query);
           final matchesFilter = switch (_filter) {
             _TrackFilter.all => true,
-            _TrackFilter.local => track.isLocal,
-            _TrackFilter.youtube => !track.isLocal,
             _TrackFilter.favorites => track.isFavorite,
           };
           return matchesQuery && matchesFilter;
@@ -103,8 +101,6 @@ class _LibraryPageState extends State<LibraryPage> {
                                   setState(() => _filter = filter),
                               label: Text(switch (filter) {
                                 _TrackFilter.all => 'All',
-                                _TrackFilter.local => 'On this device',
-                                _TrackFilter.youtube => 'YouTube',
                                 _TrackFilter.favorites => 'Favorites',
                               }),
                             ),
@@ -137,7 +133,7 @@ class _LibraryPageState extends State<LibraryPage> {
                     const SizedBox(height: 7),
                     Text(
                       widget.controller.library.tracks.isEmpty
-                          ? 'Add local audio or a YouTube link to begin.'
+                          ? 'Import audio files from this device to begin.'
                           : 'Try another search or filter.',
                       textAlign: TextAlign.center,
                     ),

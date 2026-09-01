@@ -9,7 +9,6 @@ import '../../domain/entities/media_track.dart';
 import '../../domain/entities/music_library.dart';
 import '../../domain/entities/user_playlist.dart';
 import '../../domain/usecases/load_music_library.dart';
-import '../../domain/usecases/parse_youtube_url.dart';
 import '../../domain/usecases/pick_local_tracks.dart';
 import '../../domain/usecases/save_music_library.dart';
 
@@ -18,18 +17,15 @@ class MusicController extends ChangeNotifier {
     required LoadMusicLibrary loadLibrary,
     required SaveMusicLibrary saveLibrary,
     required PickLocalTracks pickLocalTracks,
-    required ParseYoutubeUrl parseYoutubeUrl,
     required AudioPlaybackRepository playback,
   }) : _loadLibrary = loadLibrary,
        _saveLibrary = saveLibrary,
        _pickLocalTracks = pickLocalTracks,
-       _parseYoutubeUrl = parseYoutubeUrl,
        _playback = playback;
 
   final LoadMusicLibrary _loadLibrary;
   final SaveMusicLibrary _saveLibrary;
   final PickLocalTracks _pickLocalTracks;
-  final ParseYoutubeUrl _parseYoutubeUrl;
   final AudioPlaybackRepository _playback;
   final List<StreamSubscription<Object?>> _subscriptions = [];
 
@@ -119,32 +115,6 @@ class MusicController extends ChangeNotifier {
         notifyListeners();
         return _persist();
     }
-  }
-
-  Future<String?> addYoutubeTrack({
-    required String url,
-    required String title,
-    required String artist,
-    required String category,
-  }) async {
-    final videoId = _parseYoutubeUrl(url);
-    if (videoId == null) return 'Enter a valid YouTube video or Shorts link.';
-    if (library.tracks.any((track) => track.youtubeVideoId == videoId)) {
-      return 'That YouTube video is already in your library.';
-    }
-    final track = MediaTrack(
-      id: 'youtube_${DateTime.now().microsecondsSinceEpoch}',
-      title: title.trim().isEmpty ? 'YouTube video' : title.trim(),
-      artist: artist.trim().isEmpty ? 'YouTube' : artist.trim(),
-      location: url.trim(),
-      sourceType: MediaSourceType.youtube,
-      youtubeVideoId: videoId,
-      category: category.trim().isEmpty ? 'Uncategorized' : category.trim(),
-      addedAt: DateTime.now(),
-    );
-    library = library.copyWith(tracks: [...library.tracks, track]);
-    notifyListeners();
-    return _persist();
   }
 
   Future<void> addTrack(MediaTrack track) async {

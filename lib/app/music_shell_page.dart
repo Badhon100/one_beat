@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../features/audio_player/presentation/pages/now_playing_page.dart';
-import '../features/audio_player/presentation/pages/youtube_player_page.dart';
 import '../features/audio_player/presentation/widgets/mini_player.dart';
-import '../features/youtube_search/presentation/pages/youtube_search_page.dart';
 import '../features/music_library/domain/entities/media_track.dart';
 import '../features/music_library/domain/entities/user_playlist.dart';
 import '../features/music_library/presentation/controllers/music_controller.dart';
@@ -10,19 +8,16 @@ import '../features/music_library/presentation/pages/library_page.dart';
 import '../features/music_library/presentation/pages/music_home_page.dart';
 import '../features/music_library/presentation/pages/playlists_page.dart';
 
-import 'dependencies.dart';
 
 class MusicShellPage extends StatefulWidget {
   const MusicShellPage({
     required this.controller,
     required this.devicesPage,
-    required this.dependencies,
     super.key,
   });
 
   final MusicController controller;
   final Widget devicesPage;
-  final AppDependencies dependencies;
 
   @override
   State<MusicShellPage> createState() => _MusicShellPageState();
@@ -124,16 +119,6 @@ class _MusicShellPageState extends State<MusicShellPage> {
   }
 
   Future<void> _openTrack(MediaTrack track) async {
-    if (!track.isLocal) {
-      await widget.controller.pause();
-      if (!mounted) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute<void>(
-          builder: (_) => YoutubePlayerPage(track: track),
-        ),
-      );
-      return;
-    }
     final message = await widget.controller.playTrack(track);
     if (message != null) _showMessage(message);
   }
@@ -164,38 +149,6 @@ class _MusicShellPageState extends State<MusicShellPage> {
                   _importLocal();
                 },
               ),
-              _SourceOption(
-                icon: Icons.search_rounded,
-                color: const Color(0xFF10B981),
-                title: 'Browse YouTube',
-                subtitle: 'Search and import audio tracks directly',
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => YoutubeSearchPage(
-                        dependencies: widget.dependencies,
-                        controller: widget.controller,
-                        onTrackAdded: (track) {
-                          widget.controller.addTrack(track);
-                        },
-                        onTrackSelected: _openTrack,
-                      ),
-                    ),
-                  );
-                },
-              ),
-              const SizedBox(height: 10),
-              _SourceOption(
-                icon: Icons.smart_display_rounded,
-                color: const Color(0xFFEF4444),
-                title: 'Add YouTube link',
-                subtitle: 'Save and play by URL',
-                onTap: () {
-                  Navigator.pop(sheetContext);
-                  _showYoutubeForm();
-                },
-              ),
             ],
           ),
         ),
@@ -206,93 +159,6 @@ class _MusicShellPageState extends State<MusicShellPage> {
   Future<void> _importLocal() async {
     final message = await widget.controller.importLocalTracks();
     if (message != null) _showMessage(message);
-  }
-
-  Future<void> _showYoutubeForm() async {
-    final url = TextEditingController();
-    final title = TextEditingController();
-    final artist = TextEditingController();
-    final category = TextEditingController();
-    await showModalBottomSheet<void>(
-      context: context,
-      isScrollControlled: true,
-      showDragHandle: true,
-      builder: (sheetContext) => Padding(
-        padding: EdgeInsets.fromLTRB(
-          20,
-          4,
-          20,
-          MediaQuery.viewInsetsOf(sheetContext).bottom + 24,
-        ),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Add from YouTube',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 6),
-              const Text('OneBeat uses YouTube\'s official visible player.'),
-              const SizedBox(height: 18),
-              TextField(
-                controller: url,
-                keyboardType: TextInputType.url,
-                decoration: const InputDecoration(
-                  labelText: 'YouTube link',
-                  prefixIcon: Icon(Icons.link_rounded),
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: title,
-                textCapitalization: TextCapitalization.sentences,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: artist,
-                textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  labelText: 'Artist or channel',
-                ),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: category,
-                textCapitalization: TextCapitalization.words,
-                decoration: const InputDecoration(
-                  labelText: 'Category',
-                  hintText: 'Focus, Party, Podcast…',
-                ),
-              ),
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () async {
-                  final message = await widget.controller.addYoutubeTrack(
-                    url: url.text,
-                    title: title.text,
-                    artist: artist.text,
-                    category: category.text,
-                  );
-                  if (message == null && sheetContext.mounted) {
-                    Navigator.pop(sheetContext);
-                  }
-                  if (message != null) _showMessage(message);
-                },
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Add to library'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-    url.dispose();
-    title.dispose();
-    artist.dispose();
-    category.dispose();
   }
 
   Future<void> _showCreatePlaylist() async {

@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import '../../../../core/error/app_failure.dart';
 import '../../../../core/result/result.dart';
+import '../../domain/entities/media_track.dart';
 import '../../domain/entities/music_library.dart';
 import '../../domain/repositories/music_library_repository.dart';
 import '../datasources/library_local_data_source.dart';
@@ -24,6 +25,7 @@ class MusicLibraryRepositoryImpl implements MusicLibraryRepository {
               item! as Map<String, Object?>,
             ).toEntity(),
           )
+          .whereType<MediaTrack>()
           .toList(growable: false);
       final playlists = (json['playlists'] as List<Object?>? ?? const [])
           .map(

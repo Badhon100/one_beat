@@ -1,4 +1,4 @@
-enum MediaSourceType { local, youtube }
+enum MediaSourceType { local }
 
 class MediaTrack {
   const MediaTrack({
@@ -9,7 +9,6 @@ class MediaTrack {
     required this.sourceType,
     required this.addedAt,
     this.category = 'Uncategorized',
-    this.youtubeVideoId,
     this.isFavorite = false,
   });
 
@@ -20,7 +19,6 @@ class MediaTrack {
   final MediaSourceType sourceType;
   final DateTime addedAt;
   final String category;
-  final String? youtubeVideoId;
   final bool isFavorite;
 
   bool get isLocal => sourceType == MediaSourceType.local;
@@ -39,7 +37,6 @@ class MediaTrack {
       sourceType: sourceType,
       addedAt: addedAt,
       category: category ?? this.category,
-      youtubeVideoId: youtubeVideoId,
       isFavorite: isFavorite ?? this.isFavorite,
     );
   }

@@ -54,7 +54,7 @@ class MusicHomePage extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               Text(
-                'Local tracks, YouTube favorites, and speaker-ready sessions in one library.',
+                'Your local tracks and speaker-ready sessions in one library.',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 24),
@@ -258,7 +258,7 @@ class _EmptyLibrary extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              'Import audio files or save a YouTube link.',
+              'Import audio files from your device.',
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 16),
