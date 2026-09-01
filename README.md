@@ -1,73 +1,100 @@
-# OneBeat
+# OneBeat — Open-Source Android Music Player
 
-OneBeat is an Android-first Flutter music player and Bluetooth LE Audio
-capability app. It combines a personal local audio library, playlists,
-favorites, categories, and speaker-readiness checks in one experience.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Flutter](https://img.shields.io/badge/Flutter-3.41%2B-02569B?logo=flutter)](https://flutter.dev)
+[![Platform: Android](https://img.shields.io/badge/Platform-Android-3DDC84?logo=android)](https://www.android.com/)
 
-> OneBeat does not claim to route audio to arbitrary Bluetooth Classic/A2DP
-> speakers. Multi-device playback requires compatible LE Audio/Auracast phone
-> hardware, receiver hardware, and operating-system support.
+**OneBeat** is an open-source Android music player built with Flutter. Import
+and play your local MP3, M4A, WAV, and other device-supported audio files;
+create playlists; manage favorites and categories; and check Bluetooth LE Audio
+and Auracast readiness from one polished app.
 
-## Current functionality
+> OneBeat is a local music player. It does not download, extract, or stream
+> music from YouTube or other online sources.
 
-- Imports multiple local audio files using the Android system picker.
-- Plays local files with seek, queue, previous/next, shuffle, repeat-one,
-  repeat-all, and audio-focus handling.
-- Persists user playlists, favorites, categories, and library metadata locally.
-- Provides Home, Library, Playlists, Now Playing, and Devices UI.
-- Searches local tracks and filters favorites.
-- Detects Android API level, Bluetooth state, LE Audio support, and broadcast
-  source support through a native Kotlin platform channel.
-- Requests Android 12+ nearby-device permissions.
-- Opens system Bluetooth settings.
-- Presents explicit ready, permission-required, Bluetooth-off, unsupported, and
-  failure states.
-- Unit tests Bluetooth readiness and local-library persistence.
+## Download and get started
 
-## Architecture
+1. Open the latest [GitHub Release](https://github.com/Badhon100/one_beat/releases).
+2. Download `onebeat-v1.0.0-debug.apk`.
+3. Open the downloaded APK on an Android device and allow installation when Android asks.
+4. Open OneBeat and choose **Add music** to import audio files from your device.
 
-The project follows feature-first Clean Architecture:
+The debug APK is intended for testing. Android may show a warning for apps not
+installed from Google Play; this is expected for a GitHub download.
 
-```text
-lib/
-├── app/                         # Composition root, app shell, theme
-├── core/                        # Cross-feature result and failure types
-└── features/
-    ├── audio_capabilities/      # Android LE Audio capability feature
-    ├── audio_player/            # Playback contract, just_audio adapter, player UI
-    └── music_library/           # Tracks, playlists, persistence, library UI
+## Features
 
-android/app/src/main/kotlin/     # Android framework integration only
-```
+- Local Android audio player with multi-file import.
+- Queue controls: play, pause, seek, next, previous, shuffle, repeat-one, and repeat-all.
+- Background audio session and audio-focus handling.
+- Personal playlists, favorites, categories, and local library persistence.
+- Search across your local tracks, artists, and categories.
+- Bluetooth capability screen for Android version, Bluetooth state, LE Audio, and Auracast broadcast-source readiness.
+- Clear, Android-first Material UI built with Flutter.
 
-Dependencies point inward: presentation uses domain; data implements domain;
-domain has no Flutter or Android imports. `AppDependencies` is the composition
-root, keeping construction out of the feature UI.
+## Bluetooth and multi-speaker audio
 
-## Run locally
+OneBeat can report whether a device appears ready for LE Audio/Auracast. It
+does **not** claim to send one stream to arbitrary Bluetooth Classic/A2DP
+speakers. True multi-speaker playback requires compatible phone hardware,
+receiver hardware, and operating-system support.
 
-Requirements: Flutter 3.41+ with an Android SDK and an Android device/emulator.
+## Run from source
+
+### Requirements
+
+- Flutter 3.41 or newer
+- Android SDK and an Android device or emulator
+- Android 13+ physical hardware for meaningful Bluetooth LE Audio checks
 
 ```shell
+git clone https://github.com/Badhon100/one_beat.git
+cd one_beat
 flutter pub get
 flutter analyze
 flutter test
 flutter run
 ```
 
-A physical Android 13+ phone is required for meaningful LE Audio capability
-results. Emulator results are expected to report broadcast support as unavailable.
+## Build an APK
 
-## Roadmap
+```shell
+flutter build apk --debug
+```
 
-1. Validate capability results on selected phone and Auracast speaker models.
-2. Add paired-device observation and capability-specific onboarding.
-3. Integrate the system/OEM audio-sharing flow available on supported phones.
-4. Add local-audio notification and background playback controls.
-5. Read embedded media metadata and local audio tags/artwork.
-6. Measure end-to-end latency and synchronization on real hardware.
-7. Decide whether a Wi-Fi receiver mode is needed for non-Auracast speakers.
+The output is at `build/app/outputs/flutter-apk/app-debug.apk`.
 
-The next phase must be based on tested target hardware because Android does not
-offer a universal third-party API for routing one media stream to arbitrary
-Bluetooth speakers.
+## Architecture
+
+OneBeat follows feature-first Clean Architecture. Dependencies point inward:
+presentation uses domain contracts, data implements them, and domain code has
+no Flutter or Android imports.
+
+```text
+lib/
+├── app/                         # Composition root, shell, theme
+├── core/                        # Shared Result and failure types
+└── features/
+    ├── audio_capabilities/      # Android LE Audio capability feature
+    ├── audio_player/            # Playback contract, adapter, player UI
+    └── music_library/           # Tracks, playlists, persistence, library UI
+```
+
+See [docs/architecture.md](docs/architecture.md) for more detail.
+
+## Contribute
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md), then:
+
+1. Fork the repository and create a focused branch.
+2. Make your change with tests where applicable.
+3. Run `flutter analyze` and `flutter test`.
+4. Open a pull request describing the problem and the solution.
+
+Good first contributions include improving local metadata/artwork, accessibility,
+test coverage, device compatibility, and Bluetooth onboarding. Please use the
+issue templates for bugs and feature requests.
+
+## License
+
+OneBeat is released under the [MIT License](LICENSE).
