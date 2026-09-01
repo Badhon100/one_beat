@@ -34,9 +34,6 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
       ..addListener(_refresh);
     if (_controller.isConfigured) {
       _controller.search('trending music');
-    } else {
-      _controller.message =
-          'To enable in-app song browsing, run OneBeat with a restricted YouTube Data API key using --dart-define=YOUTUBE_API_KEY=your_key.';
     }
   }
 
@@ -52,10 +49,14 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
     if (mounted) setState(() {});
   }
 
+  List<MediaTrack> get _savedYoutubeTracks => widget.controller.library.tracks
+      .where((track) => track.sourceType == MediaSourceType.youtube)
+      .toList(growable: false);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Browse YouTube Audio')),
+      appBar: AppBar(title: const Text('Browse YouTube')),
       body: Column(
         children: [
           Padding(
@@ -78,7 +79,14 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
               onSubmitted: (value) => _controller.search(value),
             ),
           ),
-          if (_controller.isSearching)
+          if (!_controller.isConfigured)
+            Expanded(
+              child: _SavedYoutubeList(
+                tracks: _savedYoutubeTracks,
+                onTrackSelected: widget.onTrackSelected,
+              ),
+            )
+          else if (_controller.isSearching)
             const Expanded(child: Center(child: CircularProgressIndicator()))
           else if (_controller.message != null && _controller.results.isEmpty)
             Expanded(
@@ -151,6 +159,65 @@ class _YoutubeSearchPageState extends State<YoutubeSearchPage> {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _SavedYoutubeList extends StatelessWidget {
+  const _SavedYoutubeList({
+    required this.tracks,
+    required this.onTrackSelected,
+  });
+
+  final List<MediaTrack> tracks;
+  final ValueChanged<MediaTrack> onTrackSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    if (tracks.isEmpty) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Text(
+            'Your saved YouTube tracks will appear here. Add a YouTube link from the music menu to build your list.',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 16),
+          ),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      itemCount: tracks.length + 1,
+      separatorBuilder: (_, __) => const SizedBox(height: 8),
+      itemBuilder: (context, index) {
+        if (index == 0) {
+          return const Padding(
+            padding: EdgeInsets.fromLTRB(4, 8, 4, 12),
+            child: Text(
+              'Saved YouTube music',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          );
+        }
+        final track = tracks[index - 1];
+        return ListTile(
+          onTap: () => onTrackSelected(track),
+          leading: const CircleAvatar(child: Icon(Icons.play_arrow_rounded)),
+          title: Text(
+            track.title,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          subtitle: Text(
+            track.artist,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          trailing: const Icon(Icons.chevron_right_rounded),
+        );
+      },
     );
   }
 }
