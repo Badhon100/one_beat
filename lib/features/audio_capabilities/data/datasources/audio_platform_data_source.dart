@@ -11,7 +11,9 @@ abstract interface class AudioPlatformDataSource {
 class MethodChannelAudioPlatformDataSource implements AudioPlatformDataSource {
   const MethodChannelAudioPlatformDataSource();
 
-  static const _channel = MethodChannel('com.onebeat.app/audio_capabilities');
+  static const _channel = MethodChannel(
+    'com.badhon.one_beat/audio_capabilities',
+  );
 
   @override
   Future<AudioCapabilitiesModel> getCapabilities() async {

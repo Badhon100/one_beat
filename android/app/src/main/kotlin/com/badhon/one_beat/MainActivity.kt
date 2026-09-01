@@ -1,4 +1,4 @@
-package com.onebeat.app
+package com.badhon.one_beat
 
 import android.Manifest
 import android.bluetooth.BluetoothManager
@@ -109,7 +109,7 @@ class MainActivity : AudioServiceActivity() {
     }
 
     private companion object {
-        const val AUDIO_CAPABILITIES_CHANNEL = "com.onebeat.app/audio_capabilities"
+        const val AUDIO_CAPABILITIES_CHANNEL = "com.badhon.one_beat/audio_capabilities"
         const val BLUETOOTH_PERMISSION_REQUEST = 4102
     }
 }
